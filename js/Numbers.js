@@ -31,6 +31,10 @@ class Numbers extends Component {
     running: false
   }
 
+  componentDidMount() {
+    this.generateResults()
+  }
+
   increaseMin() {
     var number = parseInt(this.state.min);
     number++;
@@ -148,6 +152,11 @@ class Numbers extends Component {
         <TouchableOpacity onPress={() => this.generateResults()} activeOpacity={0.8} style={this.state.running ? styles.rollButtonDisabled : styles.rollButton}>
           <Text style={styles.rollButtonText}>Roll</Text>
         </TouchableOpacity>
+        {this.state.numberList.length == 0 &&
+          <View style={styles.itemViewLatest}>
+            <Text style={styles.itemTextLatest}>--</Text>
+          </View>
+        }
         <FlatList
           ref={(history) => this.history = history}
           contentContainerStyle={styles.listContainer}
@@ -315,7 +324,8 @@ var styles = StyleSheet.create({
   },
   itemViewLatest: {
     paddingTop: 70,
-    paddingBottom: 40
+    paddingBottom: 40,
+    alignItems: 'center'
   },
   itemTextLatest: {
     fontSize: 80,
