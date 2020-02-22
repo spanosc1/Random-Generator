@@ -70,7 +70,7 @@ class Header extends Component {
           <TouchableOpacity onPress={() => this.navigate('Colors')} activeOpacity={0.8} style={[styles.headerLink, styles.headerLinkTwo]}>
             <Text style={styles.linkText}>Colors</Text>
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} style={[styles.headerLink, styles.headerLinkThree]}>
+          <TouchableOpacity onPress={() => this.navigate('Tarot')} activeOpacity={0.8} style={[styles.headerLink, styles.headerLinkThree]}>
             <Text style={styles.linkText}>Tarot</Text>
           </TouchableOpacity>
           <TouchableOpacity activeOpacity={0.8} style={[styles.headerLink, styles.headerLinkFour]}>

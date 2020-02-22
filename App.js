@@ -24,6 +24,7 @@ const Stack = createStackNavigator();
 import Header from './js/Header';
 import Numbers from './js/Numbers';
 import Colors from './js/Colors';
+import Tarot from './js/Tarot';
 
 export default function App() {
   return (
@@ -39,6 +40,10 @@ export default function App() {
         <Stack.Screen
           name="Colors"
           component={Colors}
+        />
+        <Stack.Screen
+          name="Tarot"
+          component={Tarot}
         />
       </Stack.Navigator>
     </NavigationContainer>
