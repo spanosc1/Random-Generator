@@ -25,6 +25,7 @@ import Header from './js/Header';
 import Numbers from './js/Numbers';
 import Colors from './js/Colors';
 import Tarot from './js/Tarot';
+import Saves from './js/Saves';
 
 export default function App() {
   return (
@@ -36,14 +37,30 @@ export default function App() {
         <Stack.Screen
           name="Numbers"
           component={Numbers}
+          options={{
+            gestureEnabled: false
+          }}
         />
         <Stack.Screen
           name="Colors"
           component={Colors}
+          options={{
+            gestureEnabled: false
+          }}
         />
         <Stack.Screen
           name="Tarot"
           component={Tarot}
+          options={{
+            gestureEnabled: false
+          }}
+        />
+        <Stack.Screen
+          name="Saves"
+          component={Saves}
+          options={{
+            gestureEnabled: false
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

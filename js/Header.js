@@ -22,7 +22,12 @@ class Header extends Component {
   state = {
     height: new Animated.Value(0),
     menuOpen: false,
-    menuMaxHeight: gVal.isX ? 300 : 280
+    menuMaxHeight: gVal.isX ? 300 : 280,
+    currentPage: ''
+  }
+
+  componentDidMount() {
+    this.setState({currentPage: this.props.page});
   }
 
   toggleMenu() {
@@ -73,11 +78,16 @@ class Header extends Component {
           <TouchableOpacity onPress={() => this.navigate('Tarot')} activeOpacity={0.8} style={[styles.headerLink, styles.headerLinkThree]}>
             <Text style={styles.linkText}>Tarot</Text>
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.8} style={[styles.headerLink, styles.headerLinkFour]}>
-            <Text style={styles.linkText}>Fourth</Text>
+          <TouchableOpacity onPress={() => this.navigate('Saves')} activeOpacity={0.8} style={[styles.headerLink, styles.headerLinkFour]}>
+            <Text style={styles.linkText}>Saves</Text>
           </TouchableOpacity>
         </Animated.View>
         <View style={styles.displayRow}>
+          {this.state.currentPage == 'Saves' ||
+            <TouchableOpacity onPress={() => this.props.onSave()} activeOpacity={0.8} style={styles.saveButton}>
+              <Text style={styles.saveText}>Save</Text>
+            </TouchableOpacity>
+          }
           <TouchableOpacity onPress={() => this.toggleMenu()} style={styles.menuButton}>
             <View style={styles.line}>
             </View>
@@ -132,6 +142,18 @@ const styles = StyleSheet.create({
     width: 30,
     backgroundColor: '#ffffff',
     borderRadius: 2
+  },
+  saveButton: {
+    height: 35,
+    width: 45,
+    display: "flex",
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'space-evenly'
+  },
+  saveText: {
+    color: '#ffffff',
+    fontSize: 16
   },
   linkText: {
     fontSize: 22,

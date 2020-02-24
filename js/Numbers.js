@@ -9,12 +9,16 @@ import {
   StatusBar,
   TouchableOpacity,
   TextInput,
-  FlatList
+  FlatList,
+  Modal,
+  Alert
 } from 'react-native';
 
 import Header from './Header';
 
 import gVal from './global/global';
+
+import AsyncStorage from '@react-native-community/async-storage';
 
 var running = false;
 
@@ -28,7 +32,9 @@ class Numbers extends Component {
     max: '100',
     numberOfResults: '1',
     numberList: [],
-    running: false
+    running: false,
+    confirmModal: false,
+    label: ''
   }
 
   componentDidMount() {
@@ -98,10 +104,43 @@ class Numbers extends Component {
     this.setState({numberList: []});
   }
 
+  save() {
+    this.setState({confirmModal: true}, () => {
+      this.t.focus();
+    });
+  }
+
+  cancelModal() {
+    this.setState({confirmModal: false, label: ''});
+  }
+
+  confirmSave() {
+    this.setState({confirmModal: false});
+    AsyncStorage.getItem('saves', (err, results) => {
+      if(results)
+      {
+        var parsed = JSON.parse(results);
+        var sliced = parsed.slice(0);
+        parsed.unshift({type: 'Numbers', label: this.state.label, data: this.state.numberList, date: Date.now()});
+      }
+      else
+      {
+        var parsed = [{
+          type: 'Numbers',
+          data: this.state.numberList
+        }];
+      }
+      AsyncStorage.setItem('saves', JSON.stringify(parsed), (error) => {
+        Alert.alert('Saved', 'New record saved');
+        this.setState({label: ''});
+      });
+    });
+  }
+
   render() {
     return (
       <View style={styles.container}>
-        <Header navigation={this.props.navigation}/>
+        <Header navigation={this.props.navigation} page={'Numbers'} onSave={() => this.save()}/>
         <View style={styles.inputRow}>
           <View style={styles.inputMinView}>
             <Text style={styles.inputHeader}>Min</Text>
@@ -173,7 +212,37 @@ class Numbers extends Component {
         <TouchableOpacity onPress={() => this.clearResults()} activeOpacity={0.8} style={styles.clearButton}>
           <Text style={styles.clearText}>Clear Results</Text>
         </TouchableOpacity>
-
+        <Modal
+          visible={this.state.confirmModal}
+          animationType={'fade'}
+          transparent={true}
+          onRequestClose={() => {
+            this.cancelModal();
+          }}
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalHeaderRow}>
+                <Text style={styles.modalHeaderText}>Add a label</Text>
+                <TouchableOpacity onPress={() => this.cancelModal()} style={styles.cancelButton}>
+                  <Text style={styles.cancelText}>X</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.modalBody}>
+                <TextInput
+                  ref={(t) => this.t = t}
+                  style={styles.modalText}
+                  multiline={true}
+                  value={this.state.label}
+                  onChangeText={(label) => this.setState({label: label})}
+                />
+                <TouchableOpacity onPress={() => this.confirmSave()} activeOpacity={0.8} style={styles.saveButton}>
+                  <Text style={styles.saveText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
     )
   }
@@ -348,6 +417,68 @@ var styles = StyleSheet.create({
     shadowRadius: 3,
   },
   clearText: {
+    color: '#ffffff'
+  },
+  modalBackground: {
+    height: gVal.dHeight,
+    width: gVal.dWidth,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: gVal.dHeight/10
+  },
+  modalContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
+    padding: 10
+  },
+  modalHeaderRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minWidth: gVal.dWidth/2
+  },
+  cancelButton: {
+    backgroundColor: gVal.decreaseColor,
+    height: 30,
+    width: 30,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 15
+  },
+  cancelText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 16
+  },
+  modalBody: {
+    paddingVertical: 10
+  },
+  modalText: {
+    borderColor: '#dddddd',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    width: gVal.dWidth*0.75
+  },
+  saveButton: {
+    backgroundColor: gVal.color5,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    marginTop: 10
+  },
+  saveText: {
     color: '#ffffff'
   }
 })

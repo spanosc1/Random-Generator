@@ -10,12 +10,17 @@ import {
   Animated,
   Easing,
   TouchableOpacity,
-  FlatList
+  FlatList,
+  TextInput,
+  Modal,
+  Alert
 } from 'react-native';
 
 import Header from './Header';
 
 import gVal from './global/global';
+
+import AsyncStorage from '@react-native-community/async-storage';
 
 class Colors extends Component {
   state = {
@@ -29,7 +34,9 @@ class Colors extends Component {
     nextG: 255,
     nextB: 255,
     hexCode: '#ffffff',
-    colorList: []
+    colorList: [],
+    confirmModal: false,
+    label: ''
   }
 
   oneRandom() {
@@ -71,7 +78,22 @@ class Colors extends Component {
   }
 
   getHex(R, G, B) {
-    return `#${R.toString(16)}${G.toString(16)}${B.toString(16)}`;
+    var newR = R.toString(16);
+    var newG = G.toString(16);
+    var newB = B.toString(16);
+    if(newR.length == 1)
+    {
+      newR = '0' + newR;
+    }
+    if(newG.length == 1)
+    {
+      newG = '0' + newG;
+    }
+    if(newB.length == 1)
+    {
+      newB = '0' + newB;
+    }
+    return `#${newR}${newG}${newB}`;
   }
 
   toggleMenu() {
@@ -110,6 +132,39 @@ class Colors extends Component {
     }, 300);
   }
 
+  save() {
+    this.setState({confirmModal: true}, () => {
+      this.t.focus();
+    });
+  }
+
+  cancelModal() {
+    this.setState({confirmModal: false, label: ''});
+  }
+
+  confirmSave() {
+    this.setState({confirmModal: false});
+    AsyncStorage.getItem('saves', (err, results) => {
+      if(results)
+      {
+        var parsed = JSON.parse(results);
+        var sliced = parsed.slice(0);
+        parsed.unshift({type: 'Colors', label: this.state.label, data: this.state.colorList, date: Date.now()});
+      }
+      else
+      {
+        var parsed = [{
+          type: 'Colors',
+          data: this.state.colorList
+        }];
+      }
+      AsyncStorage.setItem('saves', JSON.stringify(parsed), (error) => {
+        Alert.alert('Saved', 'New record saved');
+        this.setState({label: ''});
+      });
+    });
+  }
+
   render() {
     var color = this.state.x.interpolate({
       inputRange: [0, 100],
@@ -117,7 +172,7 @@ class Colors extends Component {
     });
     return (
       <Animated.View style={[{backgroundColor: color}, styles.container]}>
-        <Header navigation={this.props.navigation}/>
+        <Header navigation={this.props.navigation} page={'Colors'} onSave={() => this.save()}/>
         <View style={styles.infoContainer}>
           <Text style={styles.colorInfo}>{this.state.hexCode}</Text>
           <Text style={styles.colorInfo}>rgb({this.state.prevR}, {this.state.prevG}, {this.state.prevB})</Text>
@@ -150,6 +205,37 @@ class Colors extends Component {
             </TouchableOpacity>
           </Animated.View>
         </View>
+        <Modal
+          visible={this.state.confirmModal}
+          animationType={'fade'}
+          transparent={true}
+          onRequestClose={() => {
+            this.cancelModal();
+          }}
+        >
+          <View style={styles.modalBackground}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalHeaderRow}>
+                <Text style={styles.modalHeaderText}>Add a label</Text>
+                <TouchableOpacity onPress={() => this.cancelModal()} style={styles.cancelButton}>
+                  <Text style={styles.cancelText}>X</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.modalBody}>
+                <TextInput
+                  ref={(t) => this.t = t}
+                  style={styles.modalText}
+                  multiline={true}
+                  value={this.state.label}
+                  onChangeText={(label) => this.setState({label: label})}
+                />
+                <TouchableOpacity onPress={() => this.confirmSave()} activeOpacity={0.8} style={styles.saveButton}>
+                  <Text style={styles.saveText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
       </Animated.View>
     )
   }
@@ -275,6 +361,68 @@ var styles = StyleSheet.create({
     shadowRadius: 3,
   },
   clearText: {
+    color: '#ffffff'
+  },
+  modalBackground: {
+    height: gVal.dHeight,
+    width: gVal.dWidth,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingTop: gVal.dHeight/10
+  },
+  modalContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
+    padding: 10
+  },
+  modalHeaderRow: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minWidth: gVal.dWidth/2
+  },
+  cancelButton: {
+    backgroundColor: gVal.decreaseColor,
+    height: 30,
+    width: 30,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 15
+  },
+  cancelText: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    fontSize: 16
+  },
+  modalBody: {
+    paddingVertical: 10
+  },
+  modalText: {
+    borderColor: '#dddddd',
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingVertical: 4,
+    paddingHorizontal: 6,
+    width: gVal.dWidth*0.75
+  },
+  saveButton: {
+    backgroundColor: gVal.color5,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 3,
+    marginTop: 10
+  },
+  saveText: {
     color: '#ffffff'
   }
 })
