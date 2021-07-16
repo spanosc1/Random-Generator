@@ -30,11 +30,13 @@ class Saves extends Component {
   componentDidMount() {
     this._onFocusListener = this.props.navigation.addListener('focus', (payload) => {
       AsyncStorage.getItem('saves', (err, results) => {
-        var parsed = JSON.parse(results);
-        parsed.forEach((v, i) => {
-          parsed[i] = JSON.stringify(v);
-        });
-        this.setState({saves: parsed});
+        if(results !== null) {
+          var parsed = JSON.parse(results);
+          parsed.forEach((v, i) => {
+            parsed[i] = JSON.stringify(v);
+          });
+          this.setState({saves: parsed});
+        }
       });
     });
   }
@@ -43,13 +45,13 @@ class Saves extends Component {
     var parsed = JSON.parse(item).data;
     return (
       <FlatList
-          contentContainerStyle={styles.numberListContainer}
-          showsHorizontalScrollIndicator={false}
-          bounces={false}
-          data={parsed}
-          horizontal={true}
-          keyExtractor={(item, index) => `item-${index}`}
-          renderItem={({ item, index }) => 
+        contentContainerStyle={styles.numberListContainer}
+        showsHorizontalScrollIndicator={false}
+        bounces={false}
+        data={parsed}
+        horizontal={true}
+        keyExtractor={(item, index) => `item-${index}`}
+        renderItem={({ item, index }) => 
           <View style={styles.numberView}>
             <Text style={styles.numberText}>{item}</Text>
           </View>
@@ -62,13 +64,13 @@ class Saves extends Component {
     var parsed = JSON.parse(item).data;
     return (
       <FlatList
-          contentContainerStyle={styles.colorListContainer}
-          showsHorizontalScrollIndicator={false}
-          bounces={false}
-          data={parsed}
-          horizontal={true}
-          keyExtractor={(item, index) => `item-${index}`}
-          renderItem={({ item, index }) => 
+        contentContainerStyle={styles.colorListContainer}
+        showsHorizontalScrollIndicator={false}
+        bounces={false}
+        data={parsed}
+        horizontal={true}
+        keyExtractor={(item, index) => `item-${index}`}
+        renderItem={({ item, index }) => 
           <View style={[{backgroundColor: item.H}, styles.colorView]}>
             <View style={styles.colorTextView}>
               <Text style={styles.colorText}>{item.H}</Text>
@@ -84,12 +86,12 @@ class Saves extends Component {
     var parsed = JSON.parse(item).data;
     return (
       <FlatList
-          contentContainerStyle={styles.tarotListContainer}
-          showsVerticalScrollIndicator={false}
-          bounces={false}
-          data={parsed}
-          keyExtractor={(item, index) => `item-${index}`}
-          renderItem={({ item, index }) => 
+        contentContainerStyle={styles.tarotListContainer}
+        showsVerticalScrollIndicator={false}
+        bounces={false}
+        data={parsed}
+        keyExtractor={(item, index) => `item-${index}`}
+        renderItem={({ item, index }) => 
           <View style={styles.tarotView}>
             <Text style={styles.tarotText}>{item}</Text>
           </View>
@@ -299,7 +301,7 @@ var styles = StyleSheet.create({
   },
   colorView: {
     height: 60,
-    width: 140,
+    width: 150,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'flex-end',
